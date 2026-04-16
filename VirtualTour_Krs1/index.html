@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Tour — Thorstorp, 1. krs</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a1a; font-family: Arial, sans-serif; }
+    #panorama { width: 100vw; height: 100vh; }
+    #position-list {
+      position: fixed; top: 10px; right: 10px; z-index: 1000;
+      background: rgba(0,0,0,0.7); color: white; padding: 10px;
+      border-radius: 6px; max-height: 90vh; overflow-y: auto; font-size: 13px;
+    }
+    #position-list h3 { margin-bottom: 8px; font-size: 14px; color: #ccc; }
+    .pos-btn {
+      display: block; width: 100%; text-align: left; padding: 5px 8px;
+      background: transparent; border: 1px solid #444; color: #ddd;
+      cursor: pointer; border-radius: 3px; margin-bottom: 3px;
+    }
+    .pos-btn:hover { background: rgba(255,255,255,0.15); }
+    .pos-btn.active { background: rgba(255,255,255,0.25); border-color: #aaa; }
+    #home-btn {
+      position: fixed; bottom: 24px; left: 24px; z-index: 1000;
+      background: rgba(0,0,0,0.7); color: white; border: 1px solid #555;
+      border-radius: 50%; width: 48px; height: 48px; font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    #home-btn:hover { background: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+  <div id="panorama"></div>
+  <button id="home-btn" onclick="resetToStart()" title="Back to start">⌂</button>
+  <div id="position-list">
+    <h3>Positions (10)</h3>
+    <button class="pos-btn" onclick="goTo('scene_000')" id="btn_000">Tambur / Eteinen</button>
+    <button class="pos-btn" onclick="goTo('scene_001')" id="btn_001">Tambur-Stora Salen / Eteinen-Iso Sali</button>
+    <button class="pos-btn" onclick="goTo('scene_002')" id="btn_002">Stora Salen / Iso Sali</button>
+    <button class="pos-btn" onclick="goTo('scene_003')" id="btn_003">Scenen / Esiintymislava</button>
+    <button class="pos-btn" onclick="goTo('scene_004')" id="btn_004">Lilla Salen / Pieni Sali</button>
+    <button class="pos-btn" onclick="goTo('scene_005')" id="btn_005">Köket / Keittiö</button>
+    <button class="pos-btn" onclick="goTo('scene_006')" id="btn_006">Hjälpköket / Apukeittiö</button>
+    <button class="pos-btn" onclick="goTo('scene_007')" id="btn_007">WC-tambur / WC-etutila</button>
+    <button class="pos-btn" onclick="goTo('scene_008')" id="btn_008">Dam-WC / Naisten WC</button>
+    <button class="pos-btn" onclick="goTo('scene_009')" id="btn_009">Herr-WC / Miesten WC</button>
+  </div>
+
+  <script>
+    const config = {
+  "default": {
+    "firstScene": "scene_000",
+    "sceneFadeDuration": 1000,
+    "autoLoad": true
+  },
+  "scenes": {
+    "scene_000": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_003.jpg",
+      "title": "Tambur / Eteinen",
+      "hotSpots": [
+        {
+          "pitch": -0.1,
+          "yaw": 359.5,
+          "type": "scene",
+          "sceneId": "scene_001",
+          "text": "1.4 m"
+        },
+        {
+          "pitch": -0.2,
+          "yaw": 244.0,
+          "type": "scene",
+          "sceneId": "scene_004",
+          "text": "8.6 m"
+        },
+        {
+          "pitch": -0.2,
+          "yaw": 194.9,
+          "type": "scene",
+          "sceneId": "scene_005",
+          "text": "8.0 m"
+        }
+      ]
+    },
+    "scene_001": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_007.jpg",
+      "title": "Tambur-Stora Salen / Eteinen-Iso Sali",
+      "hotSpots": [
+        {
+          "pitch": 0.1,
+          "yaw": 179.5,
+          "type": "scene",
+          "sceneId": "scene_000",
+          "text": "1.4 m"
+        },
+        {
+          "pitch": 0.1,
+          "yaw": 321.9,
+          "type": "scene",
+          "sceneId": "scene_002",
+          "text": "6.2 m"
+        },
+        {
+          "pitch": 14.8,
+          "yaw": 63.9,
+          "type": "scene",
+          "sceneId": "scene_003",
+          "text": "3.4 m"
+        }
+      ]
+    },
+    "scene_002": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_012.jpg",
+      "title": "Stora Salen / Iso Sali",
+      "hotSpots": [
+        {
+          "pitch": -0.1,
+          "yaw": 141.9,
+          "type": "scene",
+          "sceneId": "scene_001",
+          "text": "6.2 m"
+        },
+        {
+          "pitch": -0.2,
+          "yaw": 201.2,
+          "type": "scene",
+          "sceneId": "scene_004",
+          "text": "10.8 m"
+        }
+      ]
+    },
+    "scene_003": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_013.jpg",
+      "title": "Scenen / Esiintymislava",
+      "hotSpots": [
+        {
+          "pitch": -14.8,
+          "yaw": 243.9,
+          "type": "scene",
+          "sceneId": "scene_001",
+          "text": "3.4 m"
+        }
+      ]
+    },
+    "scene_004": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_019.jpg",
+      "title": "Lilla Salen / Pieni Sali",
+      "hotSpots": [
+        {
+          "pitch": 0.2,
+          "yaw": 64.0,
+          "type": "scene",
+          "sceneId": "scene_000",
+          "text": "8.6 m"
+        },
+        {
+          "pitch": 0.2,
+          "yaw": 21.2,
+          "type": "scene",
+          "sceneId": "scene_002",
+          "text": "10.8 m"
+        },
+        {
+          "pitch": -0.1,
+          "yaw": 124.8,
+          "type": "scene",
+          "sceneId": "scene_005",
+          "text": "6.9 m"
+        },
+        {
+          "pitch": 0.2,
+          "yaw": 160.6,
+          "type": "scene",
+          "sceneId": "scene_007",
+          "text": "7.4 m"
+        }
+      ]
+    },
+    "scene_005": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_022.jpg",
+      "title": "K\u00f6ket / Keitti\u00f6",
+      "hotSpots": [
+        {
+          "pitch": 0.2,
+          "yaw": 14.9,
+          "type": "scene",
+          "sceneId": "scene_000",
+          "text": "8.0 m"
+        },
+        {
+          "pitch": 0.1,
+          "yaw": 304.8,
+          "type": "scene",
+          "sceneId": "scene_004",
+          "text": "6.9 m"
+        },
+        {
+          "pitch": 0.2,
+          "yaw": 149.7,
+          "type": "scene",
+          "sceneId": "scene_006",
+          "text": "4.2 m"
+        },
+        {
+          "pitch": 0.6,
+          "yaw": 214.4,
+          "type": "scene",
+          "sceneId": "scene_008",
+          "text": "3.3 m"
+        }
+      ]
+    },
+    "scene_006": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_031.jpg",
+      "title": "Hj\u00e4lpk\u00f6ket / Apukeitti\u00f6",
+      "hotSpots": [
+        {
+          "pitch": -0.2,
+          "yaw": 329.7,
+          "type": "scene",
+          "sceneId": "scene_005",
+          "text": "4.2 m"
+        },
+        {
+          "pitch": 0.5,
+          "yaw": 257.1,
+          "type": "scene",
+          "sceneId": "scene_009",
+          "text": "3.4 m"
+        }
+      ]
+    },
+    "scene_007": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_037.jpg",
+      "title": "WC-tambur / WC-etutila",
+      "hotSpots": [
+        {
+          "pitch": -0.2,
+          "yaw": 340.6,
+          "type": "scene",
+          "sceneId": "scene_004",
+          "text": "7.4 m"
+        },
+        {
+          "pitch": -0.1,
+          "yaw": 78.9,
+          "type": "scene",
+          "sceneId": "scene_008",
+          "text": "1.4 m"
+        }
+      ]
+    },
+    "scene_008": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_038.jpg",
+      "title": "Dam-WC / Naisten WC",
+      "hotSpots": [
+        {
+          "pitch": -0.6,
+          "yaw": 34.4,
+          "type": "scene",
+          "sceneId": "scene_005",
+          "text": "3.3 m"
+        },
+        {
+          "pitch": 0.1,
+          "yaw": 258.9,
+          "type": "scene",
+          "sceneId": "scene_007",
+          "text": "1.4 m"
+        },
+        {
+          "pitch": 0.2,
+          "yaw": 157.2,
+          "type": "scene",
+          "sceneId": "scene_009",
+          "text": "1.8 m"
+        }
+      ]
+    },
+    "scene_009": {
+      "type": "equirectangular",
+      "panorama": "panoramas/pos_047.jpg",
+      "title": "Herr-WC / Miesten WC",
+      "hotSpots": [
+        {
+          "pitch": -0.5,
+          "yaw": 77.1,
+          "type": "scene",
+          "sceneId": "scene_006",
+          "text": "3.4 m"
+        },
+        {
+          "pitch": -0.2,
+          "yaw": 337.2,
+          "type": "scene",
+          "sceneId": "scene_008",
+          "text": "1.8 m"
+        }
+      ]
+    }
+  }
+};
+
+    const viewer = pannellum.viewer('panorama', config);
+
+    function goTo(sceneId) {
+      viewer.loadScene(sceneId);
+      document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      const idx = sceneId.replace('scene_', '');
+      const btn = document.getElementById('btn_' + idx);
+      if (btn) btn.classList.add('active');
+    }
+
+    // Resize hotspot arrows by distance after Pannellum has placed them
+    function scaleHotspots() {
+      document.querySelectorAll('.pnlm-scene').forEach(el => {
+        const tip = el.querySelector('.pnlm-tooltip');
+        if (!tip) return;
+        const m = tip.textContent.match(/([\d.]+)\s*m/);
+        if (!m) return;
+        const dist = parseFloat(m[1]);
+        const size   = dist < 3 ? 40 : dist < 7 ? 28 : 20;
+        const offset = -(size / 2);
+        el.style.width      = size   + 'px';
+        el.style.height     = size   + 'px';
+        el.style.marginTop  = offset + 'px';
+        el.style.marginLeft = offset + 'px';
+      });
+    }
+    viewer.on('load',        scaleHotspots);
+    viewer.on('scenechange', () => setTimeout(scaleHotspots, 50));
+
+    function resetToStart() {
+      viewer.loadScene('scene_000');
+      viewer.setPitch(0);
+      viewer.setYaw(0);
+      document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn_000').classList.add('active');
+    }
+
+    viewer.on('scenechange', (sceneId) => {
+      document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      const idx = sceneId.replace('scene_', '');
+      const btn = document.getElementById('btn_' + idx);
+      if (btn) btn.classList.add('active');
+    });
+
+    // Highlight first button
+    document.getElementById('btn_000').classList.add('active');
+  </script>
+</body>
+</html>
